@@ -1,0 +1,20 @@
+{
+    "name": "routier/routier",
+    "description": "An Express.js like router",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexandre Philibert",
+            "email": "alexandre.philibert@cpnv.ch"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Routier\\": "src/"
+        },
+        "classmap": [
+            "src/"
+        ]
+    }
+}
