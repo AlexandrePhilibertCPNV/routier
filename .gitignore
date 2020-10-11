@@ -1,3 +1,5 @@
 # Composer files
 vendor
 composer.lock
+
+.vscode
