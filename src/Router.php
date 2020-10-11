@@ -86,23 +86,28 @@ class Router
      * NOTE: No more that 1 route will be matched (in the order in which they 
      * where registered).
      */
-    public function execute()
+    public function execute($request_uri = null, $request_method = null)
     {
-        $request_uri = '';
-        $get_params_offset = stripos($_SERVER['REQUEST_URI'], '?');
+        if (!isset($request_uri)) {
+            $get_params_offset = stripos($_SERVER['REQUEST_URI'], '?');
 
-        // Remove GET parameters from request uri
-        if ($get_params_offset) {
-            $request_uri = substr($_SERVER['REQUEST_URI'], 0, $get_params_offset);
-        } else {
-            $request_uri = $_SERVER['REQUEST_URI'];
+            // Remove GET parameters from request uri
+            if ($get_params_offset) {
+                $request_uri = substr($_SERVER['REQUEST_URI'], 0, $get_params_offset);
+            } else {
+                $request_uri = $_SERVER['REQUEST_URI'];
+            }
+        }
+
+        if (!isset($request_method)) {
+            $request_method = $_SERVER['REQUEST_METHOD'];
         }
 
         foreach ($this->routes as $route) {
             preg_match_all('#^' . $route->path . '$#', $request_uri, $matches);
 
             foreach ($matches as $match) {
-                if ($match && $_SERVER['REQUEST_METHOD'] == $route->method) {
+                if ($match && $request_method == $route->method) {
                     // NOTE: The $request_uri has no GET parameters, this means we cannot 
                     // use the ":name" syntax in GET parameters.
                     $params = $this->extract_params($route, $request_uri);
