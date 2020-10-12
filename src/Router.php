@@ -15,12 +15,13 @@ class Router
      * @access private
      * @var array
      */
-    private $routes;
+    private $routes = [];
 
-    public function __construct()
-    {
-        $this->routes = [];
-    }
+    /**
+     * @access private
+     * @var array
+     */
+    private $routers = [];
 
     /**
      * @param string $path 
@@ -61,6 +62,19 @@ class Router
     }
 
     /**
+     * Register a router under the specified `path`. The router consumes the 
+     * registered path and passes the remaining path to the subrouter.
+     * 
+     * @param string $path
+     * @param Router $router
+     * 
+     */
+    public function use(string $path, Router $router)
+    {
+        $this->routers[$path] = $router;
+    }
+
+    /**
      * @param string $path
      * @param callable $callback
      * 
@@ -70,12 +84,13 @@ class Router
         $this->register('GET', $path, $callback);
     }
 
-      /**
+    /**
      * @param string $path
      * @param callable $callback
      * 
      */
-    public function post(string $path, callable $callback) {
+    public function post(string $path, callable $callback)
+    {
         $this->register('POST', $path, $callback);
     }
 
@@ -89,14 +104,7 @@ class Router
     public function execute($request_uri = null, $request_method = null)
     {
         if (!isset($request_uri)) {
-            $get_params_offset = stripos($_SERVER['REQUEST_URI'], '?');
-
-            // Remove GET parameters from request uri
-            if ($get_params_offset) {
-                $request_uri = substr($_SERVER['REQUEST_URI'], 0, $get_params_offset);
-            } else {
-                $request_uri = $_SERVER['REQUEST_URI'];
-            }
+            $request_uri = $this->remove_get_parameters($_SERVER['REQUEST_METHOD']);
         }
 
         if (!isset($request_method)) {
@@ -118,6 +126,22 @@ class Router
                 }
             }
         }
+
+        // Execute the sub-routers
+        foreach ($this->routers as $registered_path => $router) {
+            $router->execute(substr($request_uri, strlen($registered_path)), $request_method);
+        }
+    }
+
+    private function remove_get_parameters($request_uri): string
+    {
+        $get_params_offset = stripos($request_uri, '?');
+
+        if ($get_params_offset) {
+            return substr($request_uri, 0, $get_params_offset);
+        } else {
+            return $request_uri;
+        }
     }
 
     /**
@@ -130,7 +154,8 @@ class Router
      * 
      * NOTE: Float values are cast into int
      */
-    private function extract_params($route, $request_uri) : array {
+    private function extract_params($route, $request_uri): array
+    {
         $parameters = [];
         preg_match_all('#' . $route->path . '#', $request_uri, $matches);
 
@@ -139,12 +164,12 @@ class Router
         $length = count($matches);
         for ($i = 1; $i < $length; $i++) {
             $value = $matches[$i][0];
-            
+
             if (is_numeric($value)) {
                 $value = (int) $value;
             }
 
-            $parameters[$route->parameters[$i-1]] = $value;
+            $parameters[$route->parameters[$i - 1]] = $value;
         }
 
         return $parameters;
