@@ -80,4 +80,21 @@ class RouterTest extends TestCase
         assertFalse($was_get_called, 'GET route should not be called');
         assertTrue($was_post_called, 'POST route should be called');
     }
+
+    public function testNestedRouters()
+    {
+        $was_user_route_called = false;
+
+        $router = new Router();
+        $user_router = new Router();
+
+        $user_router->get('/', function () use (&$was_user_route_called) {
+            $was_user_route_called = true;
+        });
+
+        $router->use('/users', $user_router);
+        $router->execute('/users/', 'GET');
+
+        assertTrue($was_user_route_called);
+    }
 }
