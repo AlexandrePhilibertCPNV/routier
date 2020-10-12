@@ -112,7 +112,7 @@ class Router
                     // use the ":name" syntax in GET parameters.
                     $params = $this->extract_params($route, $request_uri);
 
-                    ($route->callback)($params);
+                    call_user_func($route->callback, $params);
                     // We don't want to match on more than one route.
                     break;
                 }
