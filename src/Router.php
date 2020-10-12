@@ -40,25 +40,10 @@ class Router
      * @param callable $callback    The callback that will be called if the 
      *                              path is matched
      * 
-     * TODO(alexandre): The route path to regex transformation should be done 
-     * inside the route class
      */
     private function register(string $method, string $path, callable $callback)
     {
-        // Replace the route parameters ":name" with regexes to match against
-        // incoming requests.
-        $regexed_path = preg_replace('/:[a-zA-Z_]*/', '([a-zA-Z0-9]+)*', $path);
-        // Escape the regex in order to not match the literal "/" character
-        $regexed_path = str_replace("/", "\/", $regexed_path);
-
-        // Match the regex on the given path to extract the parameters name.
-        // This allows us to retrieve the values later as the path registered on
-        // the route was changed to contain regexes where the parameters are.
-        preg_match_all('/:([a-zA-Z_]*)/', $path, $matches);
-
-        $route = new Route($method, $regexed_path, $callback);
-        $route->parameters = $matches[1];
-        $this->routes[] = $route;
+        $this->routes[] = new Route($method, $path, $callback);
     }
 
     /**
