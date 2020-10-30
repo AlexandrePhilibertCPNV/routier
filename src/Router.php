@@ -33,6 +33,12 @@ class Router
         exit();
     }
 
+    public static function json($value) {
+        header("Content-type: applicaton/json");
+        json_encode($value);
+        exit();
+    }
+
     /**
      * @param string $method        The HTTP method (GET, POST, ...)
      * @param string $path          The path that will trigger the callback. 
@@ -89,7 +95,7 @@ class Router
     public function execute($request_uri = null, $request_method = null)
     {
         if (!isset($request_uri)) {
-            $request_uri = $this->remove_get_parameters($_SERVER['REQUEST_METHOD']);
+            $request_uri = $this->remove_get_parameters($_SERVER['REQUEST_URI']);
         }
 
         if (!isset($request_method)) {
