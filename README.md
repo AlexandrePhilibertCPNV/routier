@@ -22,3 +22,10 @@ $router->get('/user/:user_id', function ($params) {
     echo "The id of the user is $user_id"; 
 });
 ```
+
+## Available Methods
+
+The HTTP methods currently available are :
+
+- get
+- post
